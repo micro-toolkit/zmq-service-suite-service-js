@@ -31,7 +31,7 @@ var config = {
   // broker backend address
   broker: "tcp://127.0.0.1:5561", (optional), defaults to tcp://127.0.0.1:5560
   // service heartbeat interval in ms (optional), defaults to 1s
-  heartbeat: 10000
+  heartbeat: 1000
 };
 
 var service = new ZSSService(config);
