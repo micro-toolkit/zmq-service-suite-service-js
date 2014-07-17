@@ -6,6 +6,8 @@
 
 ## ZMQ Service Oriented Suite - Node-js Service
 
+[![NPM version](https://badge.fury.io/js/zmq-service-suite-service.svg)](http://badge.fury.io/js/zmq-service-suite-service)
+
 This project is a node-js service implementation for [ZMQ Service Suite](http://pjanuario.github.io/zmq-service-suite-specs/).
 
 **0MQ Install**
