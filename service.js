@@ -17,6 +17,13 @@
     };
 
     var config = _.defaults(configuration, defaults);
+
+    if (!config.sid) {
+      throw new Error("A sid must be passed!");
+    }
+
+    config.sid = config.sid.toUpperCase();
+
     var routing = {};
 
     var identity = config.sid + "#" + uuid.v1();

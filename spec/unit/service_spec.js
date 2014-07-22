@@ -7,7 +7,7 @@ describe("ZSSService", function(){
   var Message = require('zmq-service-suite-message');
   var Logger = require('logger-facade-nodejs');
 
-  var config = { sid: 'test-zmq', broker: "ipc://tmp/test/service-js", heartbeat: 10000 };
+  var config = { sid: 'TEST-ZMQ', broker: "ipc://tmp/test/service-js", heartbeat: 10000 };
 
   var IDENTITY_FRAME = 0,
       PROTOCOL_FRAME = 1,
@@ -24,6 +24,28 @@ describe("ZSSService", function(){
     spyOn(uuid, 'v1').andReturn("uuid");
     log = Logger.getLogger('ZSSService');
     spyOn(Logger, 'getLogger').andReturn(log);
+  });
+
+  describe('Constructor', function() {
+    it('throws an error if no sid is passed', function() {
+      var err = new Error("A sid must be passed!");
+      expect(function() {
+        new ZSSService({});
+      }).toThrow(err);
+    });
+
+    it('converts the sid to its uppercase version', function(done) {
+      spyOn(zmq, 'socket').andReturn({
+        send: Function.apply(),
+        on: Function.apply(),
+        connect: function(uri) {
+          expect(this.identity).toEqual("TEST#uuid");
+          done();
+        }
+      });
+
+      new ZSSService({sid: 'test'}).run();
+    });
   });
 
   describe("#run", function(){
@@ -59,7 +81,7 @@ describe("ZSSService", function(){
           send: Function.apply(),
           on: Function.apply(),
           connect: function(uri) {
-            expect(this.identity).toEqual("test-zmq#uuid");
+            expect(this.identity).toEqual("TEST-ZMQ#uuid");
             done();
           }
         });
@@ -120,7 +142,7 @@ describe("ZSSService", function(){
           connect: Function.apply(),
           on: Function.apply(),
           send: function(frames) {
-            expect(frames[IDENTITY_FRAME]).toEqual("test-zmq#uuid");
+            expect(frames[IDENTITY_FRAME]).toEqual("TEST-ZMQ#uuid");
             done();
           }
         });
@@ -240,7 +262,7 @@ describe("ZSSService", function(){
               return;
             }
 
-            expect(frames[IDENTITY_FRAME]).toEqual("test-zmq#uuid");
+            expect(frames[IDENTITY_FRAME]).toEqual("TEST-ZMQ#uuid");
             done();
           }
         });
@@ -456,7 +478,7 @@ describe("ZSSService", function(){
     beforeEach(function(){
 
       address = {
-        sid: "test-zmq",
+        sid: "TEST-ZMQ",
         sversion: "*",
         verb: "ping"
       };
