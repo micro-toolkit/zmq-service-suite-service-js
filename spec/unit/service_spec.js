@@ -639,6 +639,21 @@ describe("ZSSService", function(){
       });
     });
 
+    describe('#addVerbs', function() {
+      it('calls #addVerb for each tuple in an array', function() {
+        var service = new ZSSService({sid: 'test'});
+        var verbs = [['one', Function.apply()], ['two', Function.apply()]];
+        var spy = spyOn(service, 'addVerb');
+
+        service.addVerbs(verbs);
+
+        console.log(spy.calls);
+        expect(spy.calls[0].args).toEqual(['one', jasmine.any(Function)]);
+        expect(spy.calls[1].args).toEqual(['two', jasmine.any(Function)]);
+        //expect(spy).toHaveBeenCalledWith(['one', function() {}]);
+      });
+    });
+
     describe("with successfull execution", function(){
       var socketMock;
 

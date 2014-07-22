@@ -114,6 +114,12 @@
       routing[verb.toUpperCase()] = callback;
     };
 
+    this.addVerbs = function(verbs) {
+      verbs.forEach(function(verb) {
+        this.addVerb(verb[0], verb[1]);
+      }, this);
+    };
+
     this.run = function(){
       socket.identity = identity;
       socket.linger = 0;
