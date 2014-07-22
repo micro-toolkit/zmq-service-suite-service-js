@@ -107,6 +107,13 @@
       routing[verb.toUpperCase()] = callback;
     };
 
+    this.addVerbs = function(verbs) {
+      var self = this;
+      verbs.forEach(function(verb) {
+        self.addVerb(verb[0], verb[1]);
+      });
+    };
+
     this.run = function(){
       socket.identity = identity;
       socket.linger = 0;
