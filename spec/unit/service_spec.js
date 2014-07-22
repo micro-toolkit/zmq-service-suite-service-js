@@ -26,6 +26,15 @@ describe("ZSSService", function(){
     spyOn(Logger, 'getLogger').andReturn(log);
   });
 
+  describe('Constructor', function() {
+    it('throws an error if no sid is passed', function() {
+      var err = new Error("A sid must be passed!");
+      expect(function() {
+        new ZSSService({});
+      }).toThrow(err);
+    });
+  });
+
   describe("#run", function(){
 
     describe('connects the zmq socket', function(){
