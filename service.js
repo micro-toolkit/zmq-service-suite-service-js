@@ -22,6 +22,8 @@
       throw new Error("A sid must be passed!");
     }
 
+    config.sid = config.sid.toUpperCase();
+
     var routing = {};
 
     var identity = config.sid + "#" + uuid.v1();
