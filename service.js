@@ -108,10 +108,9 @@
     };
 
     this.addVerbs = function(verbs) {
-      var self = this;
       verbs.forEach(function(verb) {
-        self.addVerb(verb[0], verb[1]);
-      });
+        this.addVerb(verb[0], verb[1]);
+      }, this);
     };
 
     this.run = function(){
