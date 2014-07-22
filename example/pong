@@ -3,17 +3,17 @@
 (function(){
   var ZSSService = require('../service');
   var Logger = require('logger-facade-nodejs');
-  // var LoggerConsolePlugin = require('logger-facade-console-plugin-nodejs');
+  var LoggerConsolePlugin = require('logger-facade-console-plugin-nodejs');
 
   // this is the default config
   var config = {
-    level: 'info',
+    level: 'debug',
     timeFormat: 'YYYY-MM-DD HH:mm:ss',
     messageFormat: '%time | %logger::%level - %msg'
   };
 
-  // var plugin = new LoggerConsolePlugin(config);
-  // Logger.use(plugin);
+  var plugin = new LoggerConsolePlugin(config);
+  Logger.use(plugin);
 
   var config = {
     // service name
@@ -28,7 +28,7 @@
 
   // it register verb ping
   service.addVerb('ping', function(payload, message){
-    console.log("PING with ", message);
+    console.log("PING with %s", message);
     return "PONG";
   });
 
