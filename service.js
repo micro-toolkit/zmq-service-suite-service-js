@@ -17,6 +17,13 @@
     };
 
     var config = _.defaults(configuration, defaults);
+
+    if (!config.sid) {
+      throw new Error("A sid must be passed!");
+    }
+
+    config.sid = config.sid.toUpperCase();
+
     var routing = {};
 
     var identity = config.sid + "#" + uuid.v1();
@@ -105,6 +112,12 @@
 
     this.addVerb = function(verb, callback){
       routing[verb.toUpperCase()] = callback;
+    };
+
+    this.addVerbs = function(verbs) {
+      verbs.forEach(function(verb) {
+        this.addVerb(verb[0], verb[1]);
+      }, this);
     };
 
     this.run = function(){
