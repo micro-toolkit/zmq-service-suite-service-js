@@ -45,13 +45,17 @@
       socket.send(message.toFrames());
     };
 
-    var replyError = function(errorCode, message){
-      var error = errors[errorCode.toString()];
 
+
+    var replyError = function(error, message){
       message.status = error.code;
       message.payload = error.body;
-
       reply(message);
+    };
+
+    var replyErrorCode = function(errorCode, message){
+      var error = errors[errorCode.toString()];
+      replyError(error, message);
     };
 
     var sendRequest = function(message){
@@ -88,7 +92,7 @@
       if(!isValidAction){
         // reply with error
         log.error("Invalid address => %j", msg.address);
-        replyError(404, msg);
+        replyErrorCode(404, msg);
         return;
       }
 
@@ -104,7 +108,7 @@
       }
       catch(error){
         log.error("An error occurred while executing action: ", error);
-        replyError(500, msg);
+        replyErrorCode(500, msg);
       }
     };
 
