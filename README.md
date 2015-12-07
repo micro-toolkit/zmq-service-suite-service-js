@@ -30,8 +30,8 @@ var ZSSService = require('zmq-service-suite-service');
 var config = {
   // service name
   sid: 'test-zmq',
-  // broker backend address
-  broker: "tcp://127.0.0.1:5561", (optional), defaults to tcp://127.0.0.1:5560
+  //(optional) broker backend address, defaults to tcp://127.0.0.1:5560
+  broker: "tcp://127.0.0.1:5561",
   // service heartbeat interval in ms (optional), defaults to 1s
   heartbeat: 1000
 };
@@ -39,8 +39,8 @@ var config = {
 var service = new ZSSService(config);
 
 // it register verb ping
-service.addVerb('ping', function(payload, message){
-  return "PONG";
+service.addVerb('ping', function(payload, message, callback){
+  callback(null, "PONG");
 });
 
 service.run();
