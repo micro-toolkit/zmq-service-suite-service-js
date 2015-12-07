@@ -4,6 +4,7 @@ services:
 node_js:
   - 0.10
 before_install:
+  - sudo rm -f /etc/apt/sources.list.d/travis_ci_zeromq3-source.list
   - sudo apt-get install libzmq3-dev
 before_script:
   - npm install -g grunt-cli
