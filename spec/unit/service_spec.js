@@ -6,6 +6,7 @@ describe("ZSSService", function(){
   var msgpack = require('msgpack-js');
   var Message = require('zmq-service-suite-message');
   var Logger = require('logger-facade-nodejs');
+  var errors = require('../../config/errors');
 
   var config = { sid: 'TEST-ZMQ', broker: "ipc://tmp/test/service-js", heartbeat: 10000 };
 
@@ -508,7 +509,7 @@ describe("ZSSService", function(){
         }
       });
       var target = new ZSSService(config);
-      target.addVerb('ping', function(payload, message){
+      target.addVerb('ping', function(payload, message, callback){
         expect(payload).toEqual(expectedMsg.payload);
         expect(message).toBeDefined();
         expect(message.identity).toEqual(expectedMsg.identity);
@@ -591,26 +592,151 @@ describe("ZSSService", function(){
         target.run();
       });
 
-      it('returns an error message on service exception', function(done) {
-        spyOn(zmq, 'socket').andReturn({
-          connect: Function.apply(),
-          send: function(frames){
-            if(frames[TYPE_FRAME] === Message.Type.REP) {
-              expect(frames[STATUS_FRAME]).toEqual(500);
-              done();
+      describe("on service unkown error", function(){
+        it('returns an error message', function(done) {
+          spyOn(zmq, 'socket').andReturn({
+            connect: Function.apply(),
+            send: function(frames){
+              if(frames[TYPE_FRAME] === Message.Type.REP) {
+                expect(frames[STATUS_FRAME]).toEqual(500);
+                done();
+              }
+            },
+            on: function(type, callback) {
+              if (type === 'message') {
+                callback.apply(null, frames);
+              }
             }
-          },
-          on: function(type, callback) {
-            if (type === 'message') {
-              callback.apply(null, frames);
+          });
+          var target = new ZSSService(config);
+          target.addVerb('ping', function(payload, message, callback){
+            callback(new Error("blow up"), null);
+          });
+          target.run();
+        });
+
+        it('returns a error message payload', function(done) {
+          spyOn(zmq, 'socket').andReturn({
+            connect: Function.apply(),
+            send: function(frames){
+              if(frames[TYPE_FRAME] === Message.Type.REP) {
+                expect(msgpack.decode(frames[PAYLOAD_FRAME])).toEqual(errors["500"].body);
+                done();
+              }
+            },
+            on: function(type, callback) {
+              if (type === 'message') {
+                callback.apply(null, frames);
+              }
             }
-          }
+          });
+          var target = new ZSSService(config);
+          target.addVerb('ping', function(payload, message, callback){
+            callback(new Error("blow up"), null);
+          });
+          target.run();
         });
-        var target = new ZSSService(config);
-        target.addVerb('ping', function(){
-          throw new Error("blow up");
+      });
+
+      describe("on service handled error", function(){
+        var error;
+        beforeEach(function(){
+          error = {
+            developerMessage: "Connection timeout, the connection to the datasource seems to be down.",
+            userMessage: "We are having troubles accessing our datasource.",
+            errorCode: 599
+          };
         });
-        target.run();
+
+        it('returns an error message', function(done) {
+          spyOn(zmq, 'socket').andReturn({
+            connect: Function.apply(),
+            send: function(frames){
+              if(frames[TYPE_FRAME] === Message.Type.REP) {
+                expect(frames[STATUS_FRAME]).toEqual(599);
+                done();
+              }
+            },
+            on: function(type, callback) {
+              if (type === 'message') {
+                callback.apply(null, frames);
+              }
+            }
+          });
+          var target = new ZSSService(config);
+          target.addVerb('ping', function(payload, message, callback){
+            callback(error, null);
+          });
+          target.run();
+        });
+
+        it('returns a error message payload', function(done) {
+          spyOn(zmq, 'socket').andReturn({
+            connect: Function.apply(),
+            send: function(frames){
+              if(frames[TYPE_FRAME] === Message.Type.REP) {
+                expect(msgpack.decode(frames[PAYLOAD_FRAME])).toEqual(error);
+                done();
+              }
+            },
+            on: function(type, callback) {
+              if (type === 'message') {
+                callback.apply(null, frames);
+              }
+            }
+          });
+          var target = new ZSSService(config);
+          target.addVerb('ping', function(payload, message, callback){
+            callback(error, null);
+          });
+          target.run();
+        });
+      });
+
+      describe("on service exception", function(){
+        it('returns an error message', function(done) {
+          spyOn(zmq, 'socket').andReturn({
+            connect: Function.apply(),
+            send: function(frames){
+              if(frames[TYPE_FRAME] === Message.Type.REP) {
+                expect(frames[STATUS_FRAME]).toEqual(500);
+                done();
+              }
+            },
+            on: function(type, callback) {
+              if (type === 'message') {
+                callback.apply(null, frames);
+              }
+            }
+          });
+          var target = new ZSSService(config);
+          target.addVerb('ping', function(payload, message, callback){
+            throw new Error("blow up");
+          });
+          target.run();
+        });
+
+        it('returns a error message payload', function(done) {
+          spyOn(zmq, 'socket').andReturn({
+            connect: Function.apply(),
+            send: function(frames){
+              if(frames[TYPE_FRAME] === Message.Type.REP) {
+                expect(msgpack.decode(frames[PAYLOAD_FRAME])).toEqual(errors["500"].body);
+                done();
+              }
+            },
+            on: function(type, callback) {
+              if (type === 'message') {
+                callback.apply(null, frames);
+              }
+            }
+          });
+          var target = new ZSSService(config);
+          target.addVerb('ping', function(payload, message, callback){
+            throw new Error("blow up");
+          });
+          target.run();
+        });
       });
 
       describe("logs an error", function(){
@@ -647,10 +773,8 @@ describe("ZSSService", function(){
 
         service.addVerbs(verbs);
 
-        console.log(spy.calls);
         expect(spy.calls[0].args).toEqual(['one', jasmine.any(Function)]);
         expect(spy.calls[1].args).toEqual(['two', jasmine.any(Function)]);
-        //expect(spy).toHaveBeenCalledWith(['one', function() {}]);
       });
     });
 
@@ -678,8 +802,8 @@ describe("ZSSService", function(){
         spyOn(zmq, 'socket').andReturn(socketMock);
 
         var target = new ZSSService(config);
-        target.addVerb('ping', function(payload, message){
-          return "PONG";
+        target.addVerb('ping', function(payload, message, callback){
+          callback(null, "PONG");
         });
 
         target.run();
@@ -695,8 +819,8 @@ describe("ZSSService", function(){
         spyOn(zmq, 'socket').andReturn(socketMock);
 
         var target = new ZSSService(config);
-        target.addVerb('ping', function(payload, message){
-          return "PONG";
+        target.addVerb('ping', function(payload, message, callback){
+          callback(null, "PONG");
         });
 
         target.run();

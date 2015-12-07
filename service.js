@@ -45,7 +45,19 @@
       socket.send(message.toFrames());
     };
 
+    var isValidError = function(error){
+      return error && error.errorCode && error.userMessage &&
+        error.developerMessage;
+    };
 
+    var replyServiceError = function(error, message){
+      if(!isValidError(error)) { return replyErrorCode(500, message); }
+
+      // convert to integer status code
+      message.status = parseInt(error.errorCode, 10);
+      message.payload = error;
+      reply(message);
+    };
 
     var replyError = function(error, message){
       message.status = error.code;
@@ -99,12 +111,14 @@
       log.debug("Message routed to %s...", msg.address.verb);
 
       try {
-        // TODO: replace sync execution by eventfull
-        // check this http://stackoverflow.com/questions/7310521/node-js-best-practice-exception-handling
-        msg.payload = verb(msg.payload, msg);
-        // reply with success message
-        msg.status = 200;
-        reply(msg);
+        verb(msg.payload, msg, function(err, payload){
+          if (err) { return replyServiceError(err, msg); }
+
+          msg.payload = payload;
+          // reply with success message
+          msg.status = 200;
+          reply(msg);
+        });
       }
       catch(error){
         log.error("An error occurred while executing action: ", error);
