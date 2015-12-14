@@ -79,24 +79,31 @@ var ZSSService = function(configuration){
     socket.send(message.toFrames());
   };
 
+  var handleResponse = function(msg){
+    var isSMI = msg.address.sid === "SMI";
+    var isHeartbeat = msg.address.verb === "HEARTBEAT";
+
+    var logLevel = (isSMI && isHeartbeat) ? "trace" : "info";
+
+    // heartbeats should be logged in trace mode
+    log[logLevel]("Reply received from %s:%s with status %s",
+      msg.address.sid, msg.address.verb, msg.status);
+
+    // if is down message
+    socketClose = (isSMI && msg.address.verb === "DOWN");
+  };
+
   var onMessage = function(){
     var frames = _.toArray(arguments);
     var msg = Message.parse(frames);
 
+    if(msg.type === Message.Type.REP) {
+      return handleResponse(msg);
+    }
+
     log.info("Received %s from: %s to: %s:%s",
       msg.type, msg.identity, msg.address.sid, msg.address.verb);
-
     log.debug(msg.toString());
-
-    if(msg.type === Message.Type.REP) {
-      log.info("Reply received from %s:%s with status %s",
-        msg.address.sid, msg.address.verb, msg.status);
-
-      // if is down message
-      socketClose = (msg.address.sid === "SMI" && msg.address.verb === "DOWN");
-
-      return;
-    }
 
     var verb = routing[msg.address.verb.toUpperCase()];
     var isValidAction = msg.address.sid === config.sid && verb != null;
@@ -123,6 +130,17 @@ var ZSSService = function(configuration){
       log.error("An error occurred while executing action: ", error);
       replyErrorCode(500, msg);
     }
+  };
+
+  var sendHeartbeat = function() {
+    var message = new Message("SMI", "HEARTBEAT");
+    message.payload = config.sid;
+    message.identity = identity;
+
+    log.trace("Sending %s to %s:%s",
+      message.identity, message.address.sid, message.address.verb);
+
+    socket.send(message.toFrames());
   };
 
   // public methods
@@ -152,11 +170,7 @@ var ZSSService = function(configuration){
     sendRequest(msg);
 
     // register heartbeat send
-    heartbeatIntervalObj = setInterval(function() {
-      var msg = new Message("SMI", "HEARTBEAT");
-      msg.payload = config.sid;
-      sendRequest(msg);
-    }, config.heartbeat);
+    heartbeatIntervalObj = setInterval(sendHeartbeat, config.heartbeat);
   };
 
   this.stop = function(){
