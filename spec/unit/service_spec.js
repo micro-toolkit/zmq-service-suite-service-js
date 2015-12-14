@@ -548,6 +548,30 @@ describe("ZSSService", function(){
         "SMI", "DOWN", 200);
     });
 
+    it('logs heartbeat reply information in trace level', function(){
+
+      spyOn(zmq, 'socket').andReturn({
+        send: Function.apply(),
+        on: function(type, callback) {
+          if (type === 'message') {
+            var msg = new Message("SMI", "HEARTBEAT");
+            msg.status = 200;
+            msg.type = Message.Type.REP;
+            callback.apply(null, msg.toFrames());
+          }
+        },
+        connect: Function.apply(),
+        close: Function.apply()
+      });
+
+      var target = new ZSSService(config);
+      spyOn(log, 'trace');
+      target.run();
+
+      expect(log.trace).toHaveBeenCalledWith("Reply received from %s:%s with status %s",
+        "SMI", "HEARTBEAT", 200);
+    });
+
     describe("with error on execution", function(){
 
       it('returns an error message for invalid sid', function(done) {
