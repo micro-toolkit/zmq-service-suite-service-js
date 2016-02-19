@@ -49,15 +49,6 @@ var ZSSService = function(configuration){
       error.developerMessage;
   };
 
-  var replyServiceError = function(error, message){
-    if(!isValidError(error)) { return replyErrorCode(500, message); }
-
-    // convert to integer status code
-    message.status = parseInt(error.code, 10);
-    message.payload = error;
-    reply(message);
-  };
-
   var replyError = function(error, message){
     message.status = error.code;
     message.payload = error;
@@ -69,6 +60,14 @@ var ZSSService = function(configuration){
     replyError(error, message);
   };
 
+  var replyServiceError = function(error, message){
+    if(!isValidError(error)) { return replyErrorCode(500, message); }
+
+    // convert to integer status code
+    message.status = parseInt(error.code, 10);
+    message.payload = error;
+    reply(message);
+  };
   var sendRequest = function(message){
     message.identity = identity;
 
