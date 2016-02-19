@@ -644,7 +644,7 @@ describe("ZSSService", function(){
             connect: Function.apply(),
             send: function(frames){
               if(frames[TYPE_FRAME] === Message.Type.REP) {
-                expect(msgpack.decode(frames[PAYLOAD_FRAME])).toEqual(errors["500"].body);
+                expect(msgpack.decode(frames[PAYLOAD_FRAME])).toEqual(errors["500"]);
                 done();
               }
             },
@@ -668,7 +668,7 @@ describe("ZSSService", function(){
           error = {
             developerMessage: "Connection timeout, the connection to the datasource seems to be down.",
             userMessage: "We are having troubles accessing our datasource.",
-            errorCode: 599
+            code: 599
           };
         });
 
@@ -745,7 +745,7 @@ describe("ZSSService", function(){
             connect: Function.apply(),
             send: function(frames){
               if(frames[TYPE_FRAME] === Message.Type.REP) {
-                expect(msgpack.decode(frames[PAYLOAD_FRAME])).toEqual(errors["500"].body);
+                expect(msgpack.decode(frames[PAYLOAD_FRAME])).toEqual(errors["500"]);
                 done();
               }
             },
