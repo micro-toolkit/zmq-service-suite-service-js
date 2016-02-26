@@ -1,14 +1,14 @@
 [![Build Status](https://travis-ci.org/micro-toolkit/zmq-service-suite-service-js.svg?branch=master)](https://travis-ci.org/micro-toolkit/zmq-service-suite-service-js)
-[![Code Climate](https://codeclimate.com/github/pjanuario/zmq-service-suite-service-js.png)](https://codeclimate.com/github/pjanuario/zmq-service-suite-service-js)
-[![Coverage](https://codeclimate.com/github/pjanuario/zmq-service-suite-service-js/coverage.png)](https://codeclimate.com/github/pjanuario/zmq-service-suite-service-js)
-[![Dependency Status](https://gemnasium.com/pjanuario/zmq-service-suite-service-js.svg)](https://gemnasium.com/pjanuario/zmq-service-suite-service-js)
+[![Code Climate](https://codeclimate.com/github/micro-toolkit/zmq-service-suite-service-js/badges/gpa.svg)](https://codeclimate.com/github/micro-toolkit/zmq-service-suite-service-js)
+[![Test Coverage](https://codeclimate.com/github/micro-toolkit/zmq-service-suite-service-js/badges/coverage.svg)](https://codeclimate.com/github/micro-toolkit/zmq-service-suite-service-js/coverage)
+[![Dependency Status](https://gemnasium.com/micro-toolkit/zmq-service-suite-service-js.svg)](https://gemnasium.com/micro-toolkit/zmq-service-suite-service-js)
 ![Grunt](https://cdn.gruntjs.com/builtwith.png)
 
 ## ZMQ Service Oriented Suite - Node-js Service
 
 [![NPM version](https://badge.fury.io/js/zmq-service-suite-service.svg)](http://badge.fury.io/js/zmq-service-suite-service)
 
-This project is a node-js service implementation for [ZMQ Service Suite](http://pjanuario.github.io/zmq-service-suite-specs/).
+This project is a node-js service implementation for [ZMQ Service Suite](http://micro-toolkit.github.io/zmq-service-suite-specs/).
 
 **0MQ Install**
 
