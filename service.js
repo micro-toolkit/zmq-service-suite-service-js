@@ -61,7 +61,10 @@ var ZSSService = function(configuration){
   };
 
   var replyServiceError = function(error, message){
-    if(!isValidError(error)) { return replyErrorCode(500, message); }
+    if(!isValidError(error)) {
+      log.warn("A error occorred in the service: %s", error.stack);
+      return replyErrorCode(500, message);
+    }
 
     // convert to integer status code
     message.status = parseInt(error.code, 10);
