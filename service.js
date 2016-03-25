@@ -38,8 +38,7 @@ var ZSSService = function(configuration){
   var reply = function(message){
     message.type = Message.Type.REP;
 
-    log.info("Reply to: %s with status: %s", message.identity, message.status);
-    log.debug(message.toString());
+    log.info(message, "Reply to %s with id %s from %j with status %s", message.identity, message.rid, message.address, message.status);
 
     socket.send(message.toFrames());
   };
@@ -62,7 +61,7 @@ var ZSSService = function(configuration){
 
   var replyServiceError = function(error, message){
     if(!isValidError(error)) {
-      log.warn("A error occorred in the service: %s", error.stack);
+      log.warn(error, "A error occorred in the service: %s", error.stack);
       return replyErrorCode(500, message);
     }
 
@@ -74,9 +73,7 @@ var ZSSService = function(configuration){
   var sendRequest = function(message){
     message.identity = identity;
 
-    log.info("Sending %s to %s:%s",
-      message.identity, message.address.sid, message.address.verb);
-    log.debug(message.toString());
+    log.info(message, "Sending %s with id %s to %j with status %s", message.identity, message.rid, message.address, message.status);
 
     socket.send(message.toFrames());
   };
@@ -103,15 +100,13 @@ var ZSSService = function(configuration){
       return handleResponse(msg);
     }
 
-    log.info("Received %s from: %s to: %s:%s",
-      msg.type, msg.identity, msg.address.sid, msg.address.verb);
-    log.debug(msg.toString());
+    log.info(msg, "Received %s from %s with id %s to %j with status %s", msg.type, msg.identity, msg.rid, msg.address, msg.status);
 
     var verb = routing[msg.address.verb.toUpperCase()];
     var isValidAction = msg.address.sid === config.sid && verb != null;
     if(!isValidAction){
       // reply with error
-      log.error("Invalid address => %j", msg.address);
+      log.error(msg, "Invalid address => %j", msg.address);
       replyErrorCode(404, msg);
       return;
     }
