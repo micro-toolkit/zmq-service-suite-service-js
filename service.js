@@ -5,6 +5,10 @@ var zmq = require('zmq'),
     _ = require('lodash'),
     Message = require('zmq-service-suite-message');
 
+function isValidSuccessCode(code){
+  return code >= 200 && code < 300;
+}
+
 var ZSSService = function(configuration){
 
   var log = Logger.getLogger('ZSSService');
@@ -116,10 +120,14 @@ var ZSSService = function(configuration){
     try {
       verb(msg.payload, msg, function(err, payload){
         if (err) { return replyServiceError(err, msg); }
+        if (msg.status && !isValidSuccessCode(msg.status)){
+          log.warn(msg, "The service returned a invalid success status code: %s", msg.status);
+          return replyErrorCode(500, msg);
+        }
 
         msg.payload = payload;
         // reply with success message
-        msg.status = 200;
+        msg.status = msg.status || 200;
         reply(msg);
       });
     }

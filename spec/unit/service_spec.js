@@ -816,7 +816,7 @@ describe("ZSSService", function(){
         };
       });
 
-      it('returns status code 200 on successfull service execution', function(done) {
+      it('returns status code 200 when not specified', function(done) {
         socketMock.send = function(frames) {
           if(frames[TYPE_FRAME] === Message.Type.REP) {
             expect(frames[STATUS_FRAME]).toEqual(200);
@@ -828,6 +828,42 @@ describe("ZSSService", function(){
         var target = new ZSSService(config);
         target.addVerb('ping', function(payload, message, callback){
           callback(null, "PONG");
+        });
+
+        target.run();
+      });
+
+      it('returns the status code specified by the service', function(done) {
+        socketMock.send = function(frames) {
+          if(frames[TYPE_FRAME] === Message.Type.REP) {
+            expect(frames[STATUS_FRAME]).toEqual(204);
+            done();
+          }
+        };
+        spyOn(zmq, 'socket').andReturn(socketMock);
+
+        var target = new ZSSService(config);
+        target.addVerb('ping', function(payload, message, callback){
+          message.status = 204;
+          callback(null, null);
+        });
+
+        target.run();
+      });
+
+      it('returns 500  when the status code specified by the service is not valid', function(done) {
+        socketMock.send = function(frames) {
+          if(frames[TYPE_FRAME] === Message.Type.REP) {
+            expect(frames[STATUS_FRAME]).toEqual(500);
+            done();
+          }
+        };
+        spyOn(zmq, 'socket').andReturn(socketMock);
+
+        var target = new ZSSService(config);
+        target.addVerb('ping', function(payload, message, callback){
+          message.status = 400;
+          callback(null, null);
         });
 
         target.run();
