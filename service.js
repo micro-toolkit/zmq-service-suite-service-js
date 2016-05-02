@@ -9,6 +9,12 @@ function isValidSuccessCode(code){
   return code >= 200 && code < 300;
 }
 
+function getStatusCode(code, payload) {
+  if (code) { return code; }
+
+  return payload ? 200 : 204;
+}
+
 var ZSSService = function(configuration){
 
   var log = Logger.getLogger('ZSSService');
@@ -127,7 +133,7 @@ var ZSSService = function(configuration){
 
         msg.payload = payload;
         // reply with success message
-        msg.status = msg.status || 200;
+        msg.status = getStatusCode(msg.status, payload);
         reply(msg);
       });
     }
