@@ -903,6 +903,26 @@ describe("ZSSService", function(){
         target.run();
       });
 
+      it('returns response-time (ms) on headers', function(done) {
+        spyOn(process, 'hrtime').andCallFake(function(start){
+          return (start) ? [start, 1000000] : 1000000;
+        });
+        socketMock.send = function(frames) {
+          if(frames[TYPE_FRAME] === Message.Type.REP) {
+            var headers = msgpack.decode(frames[HEADERS_FRAME]);
+            expect(headers["response-time"]).toEqual(1);
+            done();
+          }
+        };
+        spyOn(zmq, 'socket').andReturn(socketMock);
+
+        var target = new ZSSService(config);
+        target.addVerb('ping', function(payload, message, callback){
+          callback(null, "PONG");
+        });
+
+        target.run();
+      });
     });
 
   });

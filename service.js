@@ -3,7 +3,8 @@ var zmq = require('zmq'),
     Logger = require('logger-facade-nodejs'),
     uuid = require('uuid'),
     _ = require('lodash'),
-    Message = require('zmq-service-suite-message');
+    Message = require('zmq-service-suite-message'),
+    timer = require('./lib/timer');
 
 function isValidSuccessCode(code){
   return code >= 200 && code < 300;
@@ -124,6 +125,7 @@ var ZSSService = function(configuration){
     log.debug("Message routed to %s...", msg.address.verb);
 
     try {
+      var start = timer.start();
       verb(msg.payload, msg, function(err, payload){
         if (err) { return replyServiceError(err, msg); }
         if (msg.status && !isValidSuccessCode(msg.status)){
@@ -134,6 +136,7 @@ var ZSSService = function(configuration){
         msg.payload = payload;
         // reply with success message
         msg.status = getStatusCode(msg.status, payload);
+        msg.headers["response-time"] = timer.time(start);
         reply(msg);
       });
     }
