@@ -905,12 +905,12 @@ describe("ZSSService", function(){
 
       it('returns response-time (ms) on headers', function(done) {
         spyOn(process, 'hrtime').andCallFake(function(start){
-          return (start) ? [start, 1000000] : 1000000;
+          return (start) ? [1, 0] : 1000000;
         });
         socketMock.send = function(frames) {
           if(frames[TYPE_FRAME] === Message.Type.REP) {
             var headers = msgpack.decode(frames[HEADERS_FRAME]);
-            expect(headers["response-time"]).toEqual(1);
+            expect(headers["response-time"]).toEqual(1000);
             done();
           }
         };
