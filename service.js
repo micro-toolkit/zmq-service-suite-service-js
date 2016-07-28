@@ -18,7 +18,7 @@ function getStatusCode(code, payload) {
 
 var ZSSService = function(configuration){
 
-  var log = Logger.getLogger('ZSSService');
+  var log = Logger.getLogger('micro:service');
 
   var defaults = {
     broker: 'tcp://127.0.0.1:5560',
