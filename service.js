@@ -53,7 +53,7 @@ var ZSSService = function(configuration){
 
   var onError = function(error){
     // reply with error
-    log.error("Received zmq error => %s", error.stack);
+    log.error(error, "Received zmq error: %s with stack: %s", error, error.stack);
   };
 
   var reply = function(message){
@@ -154,7 +154,7 @@ var ZSSService = function(configuration){
       });
     }
     catch(error){
-      log.error("An error occurred while executing action: ", error);
+      log.error(error, "An error occurred while executing action: %s stack: %s", error, error.stack);
       replyErrorCode(500, msg);
     }
   };

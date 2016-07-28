@@ -783,7 +783,7 @@ describe("ZSSService", function(){
           spyOn(log, 'error');
           target.run();
 
-          expect(log.error).toHaveBeenCalledWith("Received zmq error => %s", error.stack);
+          expect(log.error).toHaveBeenCalledWith(error, "Received zmq error: %s with stack: %s", error, error.stack);
         });
 
       });
