@@ -41,6 +41,10 @@ var ZSSService = function(configuration){
   var heartbeatIntervalObj;
   var socketClose = false;
 
+  function getResponseTime(msg) {
+    return msg.headers["response-time"];
+  }
+
   var onError = function(error){
     // reply with error
     log.error("Received zmq error => %s", error.stack);
