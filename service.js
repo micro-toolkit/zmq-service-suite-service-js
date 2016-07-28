@@ -22,6 +22,10 @@ function getStatusCode(code, payload) {
   return payload ? 200 : 204;
 }
 
+function getResponseTime(msg) {
+  return msg.headers["response-time"];
+}
+
 var ZSSService = function(configuration){
 
   var log = Logger.getLogger('micro:service');
@@ -46,10 +50,6 @@ var ZSSService = function(configuration){
   var socket = zmq.socket('dealer');
   var heartbeatIntervalObj;
   var socketClose = false;
-
-  function getResponseTime(msg) {
-    return msg.headers["response-time"];
-  }
 
   var onError = function(error){
     // reply with error
