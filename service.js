@@ -6,6 +6,12 @@ var zmq = require('zmq'),
     Message = require('zmq-service-suite-message'),
     timer = require('./lib/timer');
 
+function getClientId(identity) {
+  // identity frame is unique and contain client id + rid
+  // API#acf82370-540d-11e6-ab59-5f94a31b4896
+  return identity.split('#')[0];
+}
+
 function isValidSuccessCode(code){
   return code >= 200 && code < 300;
 }
@@ -18,7 +24,7 @@ function getStatusCode(code, payload) {
 
 var ZSSService = function(configuration){
 
-  var log = Logger.getLogger('ZSSService');
+  var log = Logger.getLogger('micro:service');
 
   var defaults = {
     broker: 'tcp://127.0.0.1:5560',
@@ -41,15 +47,20 @@ var ZSSService = function(configuration){
   var heartbeatIntervalObj;
   var socketClose = false;
 
+  function getResponseTime(msg) {
+    return msg.headers["response-time"];
+  }
+
   var onError = function(error){
     // reply with error
-    log.error("Received zmq error => %s", error.stack);
+    log.error(error, "Received zmq error: %s with stack: %s", error, error.stack);
   };
 
   var reply = function(message){
     message.type = Message.Type.REP;
 
-    log.info(message, "Reply to %s with id %s from %j with status %s", message.identity, message.rid, message.address, message.status);
+    log.info(message, "Reply to %s with id %s from %s:%s#%s with status %s took %s ms", getClientId(message.identity), message.rid,
+      message.address.sid, message.address.sversion, message.address.verb, message.status, getResponseTime(message));
 
     socket.send(message.toFrames());
   };
@@ -84,7 +95,8 @@ var ZSSService = function(configuration){
   var sendRequest = function(message){
     message.identity = identity;
 
-    log.info(message, "Sending %s with id %s to %j with status %s", message.identity, message.rid, message.address, message.status);
+    log.info(message, "Sending %s with id %s to %s:%s#%s", message.identity, message.rid, message.address.sid,
+      message.address.sversion, message.address.verb);
 
     socket.send(message.toFrames());
   };
@@ -111,18 +123,19 @@ var ZSSService = function(configuration){
       return handleResponse(msg);
     }
 
-    log.info(msg, "Received %s from %s with id %s to %j with status %s", msg.type, msg.identity, msg.rid, msg.address, msg.status);
+    log.info(msg, "Received REQ from %s with id %s to %s:%s#%s", getClientId(msg.identity), msg.rid,
+      msg.address.sid, msg.address.sversion, msg.address.verb);
 
     var verb = routing[msg.address.verb.toUpperCase()];
     var isValidAction = msg.address.sid === config.sid && verb != null;
     if(!isValidAction){
       // reply with error
-      log.error(msg, "Invalid address => %j", msg.address);
+      log.error(msg, "Invalid address: %s:%s#%s", msg.address.sid, msg.address.sversion, msg.address.verb);
       replyErrorCode(404, msg);
       return;
     }
 
-    log.debug("Message routed to %s...", msg.address.verb);
+    log.trace("Message routed to %s...", msg.address.verb);
 
     try {
       var start = timer.start();
@@ -141,7 +154,7 @@ var ZSSService = function(configuration){
       });
     }
     catch(error){
-      log.error("An error occurred while executing action: ", error);
+      log.error(error, "An error occurred while executing action: %s stack: %s", error, error.stack);
       replyErrorCode(500, msg);
     }
   };
