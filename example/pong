@@ -27,9 +27,9 @@ var service = new ZSSService(config);
 
 // it register verb ping
 service.addVerb('ping', function(payload, message, callback){
-  console.log("PING with %s", message);
+  console.log("----- Service Receive PING ----");
   setTimeout(function(){
-    console.log("RETURN PONG");
+    console.log("----- Service Return PONG ----");
     callback(null, "PONG");
   });
 });
