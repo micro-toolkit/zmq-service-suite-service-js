@@ -132,7 +132,7 @@ var ZSSService = function(configuration){
       return;
     }
 
-    log.debug("Message routed to %s...", msg.address.verb);
+    log.trace("Message routed to %s...", msg.address.verb);
 
     try {
       var start = timer.start();
