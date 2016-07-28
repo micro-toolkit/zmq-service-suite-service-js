@@ -8,7 +8,7 @@ var LoggerConsolePlugin = require('logger-facade-console-plugin-nodejs');
 var config = {
   level: 'debug',
   timeFormat: 'YYYY-MM-DD HH:mm:ss',
-  messageFormat: '%time | %logger::%level - %msg'
+  messageFormat: '%time | %logger::%level - %msg | metadata: %metadata'
 };
 
 var plugin = new LoggerConsolePlugin(config);
