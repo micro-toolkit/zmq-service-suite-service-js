@@ -6,6 +6,12 @@ var zmq = require('zmq'),
     Message = require('zmq-service-suite-message'),
     timer = require('./lib/timer');
 
+function getClientId(identity) {
+  // identity frame is unique and contain client id + rid
+  // API#acf82370-540d-11e6-ab59-5f94a31b4896
+  return identity.split('#')[0];
+}
+
 function isValidSuccessCode(code){
   return code >= 200 && code < 300;
 }
