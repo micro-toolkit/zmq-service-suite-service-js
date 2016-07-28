@@ -26,6 +26,10 @@ function getResponseTime(msg) {
   return msg.headers["response-time"];
 }
 
+function setResponseTime(msg, start) {
+  msg.headers["response-time"] = timer.time(start);
+}
+
 var ZSSService = function(configuration){
 
   var log = Logger.getLogger('micro:service');
@@ -118,6 +122,7 @@ var ZSSService = function(configuration){
   var onMessage = function(){
     var frames = _.toArray(arguments);
     var msg = Message.parse(frames);
+    var start = timer.start();
 
     if(msg.type === Message.Type.REP) {
       return handleResponse(msg);
@@ -138,8 +143,8 @@ var ZSSService = function(configuration){
     log.trace("Message routed to %s...", msg.address.verb);
 
     try {
-      var start = timer.start();
       verb(msg.payload, msg, function(err, payload){
+        setResponseTime(msg, start);
         if (err) { return replyServiceError(err, msg); }
         if (msg.status && !isValidSuccessCode(msg.status)){
           log.warn(msg, "The service returned a invalid success status code: %s", msg.status);
@@ -149,12 +154,12 @@ var ZSSService = function(configuration){
         msg.payload = payload;
         // reply with success message
         msg.status = getStatusCode(msg.status, payload);
-        msg.headers["response-time"] = timer.time(start);
         reply(msg);
       });
     }
     catch(error){
       log.error(error, "An error occurred while executing action: %s stack: %s", error, error.stack);
+      setResponseTime(msg, start);
       replyErrorCode(500, msg);
     }
   };
