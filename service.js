@@ -32,7 +32,7 @@ function setResponseTime(msg, start) {
 
 var ZSSService = function(configuration){
 
-  var log = Logger.getLogger('micro:service');
+  var log = Logger.getLogger('micro.service');
 
   var defaults = {
     broker: 'tcp://127.0.0.1:5560',
