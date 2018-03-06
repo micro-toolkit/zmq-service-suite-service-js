@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.5",
+    "moment": "^2.21.0",
     "uuid": "^2.0.2",
     "zmq": "^2.15.3",
     "zmq-service-suite-message": "0.1.0"
