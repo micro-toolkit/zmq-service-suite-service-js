@@ -4,7 +4,8 @@ var zmq = require('zmq'),
     uuid = require('uuid'),
     _ = require('lodash'),
     Message = require('zmq-service-suite-message'),
-    timer = require('./lib/timer');
+    timer = require('./lib/timer'),
+    metric = require('./lib/metric');
 
 function getClientId(identity) {
   // identity frame is unique and contain client id + rid
@@ -62,6 +63,8 @@ var ZSSService = function(configuration){
 
   var reply = function(message){
     message.type = Message.Type.REP;
+
+    message = metric.end(message);
 
     log.info(message, "Reply to %s with id %s from %s:%s#%s with status %s took %s ms", getClientId(message.identity), message.rid,
       message.address.sid, message.address.sversion, message.address.verb, message.status, getResponseTime(message));
@@ -127,6 +130,8 @@ var ZSSService = function(configuration){
     if(msg.type === Message.Type.REP) {
       return handleResponse(msg);
     }
+
+    msg = metric.start(msg);
 
     log.info(msg, "Received REQ from %s with id %s to %s:%s#%s", getClientId(msg.identity), msg.rid,
       msg.address.sid, msg.address.sversion, msg.address.verb);

@@ -490,7 +490,7 @@ describe("ZSSService", function(){
         "REQ",
         "RID",
         msgpack.encode(address),
-        msgpack.encode({}),
+        msgpack.encode({something: true}),
         null,
         msgpack.encode("data")
       ];
@@ -516,7 +516,7 @@ describe("ZSSService", function(){
         expect(message.protocol).toEqual(expectedMsg.protocol);
         expect(message.type).toEqual(expectedMsg.type);
         expect(message.address).toEqual(expectedMsg.address);
-        expect(message.headers).toEqual(expectedMsg.headers);
+        expect(message.headers.something).toEqual(expectedMsg.headers.something);
         expect(message.status).toEqual(expectedMsg.status);
         expect(message.payload).toEqual(expectedMsg.payload);
         done();
