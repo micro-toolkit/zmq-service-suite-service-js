@@ -1,4 +1,4 @@
-var zmq = require('zmq'),
+var zmq = require('zeromq'),
     errors = require('./config/errors'),
     Logger = require('logger-facade-nodejs'),
     uuid = require('uuid'),
