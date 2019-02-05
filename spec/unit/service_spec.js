@@ -1,6 +1,6 @@
 describe("ZSSService", function(){
   var ZSSService = require('../../service');
-  var zmq = require('zmq');
+  var zmq = require('zeromq');
   var uuid = require('uuid');
   var _ = require('lodash');
   var msgpack = require('msgpack-js');
